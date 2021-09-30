@@ -1,0 +1,8 @@
+#!/bin/bash
+#Normally cllin-krylov reports projection and backprojection times, let's compute their averages
+FILE=$1
+#Exclude zeroth backprojection
+BACKPROJECTIONAVERAGE=$(cat $FILE | grep "Backprojection " | grep -v "Backprojection 0" |awk -F" " '{print $NF}' | sed "s/s//g" | awk '{ total += $1; count++ } END { print total/count }')
+PROJECTIONAVERAGE=$(cat $FILE | grep "Projection " | awk -F" " '{print $NF}' | sed "s/s//g" | awk '{ total += $1; count++ } END { print total/count }')
+echo "Average projection time ${PROJECTIONAVERAGE}s"
+echo "Average backprojection time ${BACKPROJECTIONAVERAGE}s"

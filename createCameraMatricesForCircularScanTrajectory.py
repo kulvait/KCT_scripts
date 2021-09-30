@@ -33,7 +33,8 @@ parser.add_argument("--pixel-sizey", type=float, default=0.616, help="Y pixel si
 parser.add_argument("--pixel-offsetx", type=float, default=0., help="Principal point of the detector will have PX=0.5*projectionSizeX-0.5+pixelOffsetX")
 parser.add_argument("--pixel-offsety", type=float, default=0., help="Principal point of the detector will have PY=0.5*projectionSizeX-0.5+pixelOffsetY.")
 parser.add_argument("--number-of-angles", type=int, default=360, help="Number of views of the circular trajectory, .")
-parser.add_argument("--omega-zero", type=float, default=0, help="Initial angle omega in radians.")
+parser.add_argument("--omega-zero", type=float, default=0, help="Initial angle omega in degrees.")
+parser.add_argument("--omega-angular-range", type=float, default=360, help="This is an angle in degrees, along which possitions are distributed.")
 parser.add_argument("--force", action="store_true")
 parser.add_argument("--write-params-file", action="store_true")
 parser.add_argument('--_json-message', default="Created using KCT script createCameraMatricesForCircularScanTrajectory.py", help=argparse.SUPPRESS)
@@ -104,8 +105,9 @@ N=float(ARG.projection_sizex)
 PX=ARG.pixel_sizex
 PY=ARG.pixel_sizey
 VIEWCOUNT = ARG.number_of_angles
-OMEGA = ARG.omega_zero
-OMEGAINCREMENT = 2*np.pi/VIEWCOUNT
+OMEGA = ARG.omega_zero*np.pi/180.0
+RANGE = ARG.omega_angular_range*np.pi/180.0
+OMEGAINCREMENT = RANGE/VIEWCOUNT
 
 #Let's create specified set of projection matrices as np.array
 CameraMatrices = np.zeros((3,4,0), dtype=np.float64)
@@ -113,7 +115,7 @@ CameraMatrices = np.zeros((3,4,0), dtype=np.float64)
 for viewIndex in range(VIEWCOUNT):
 	s = sourcePosition(OMEGA, I) 
 	_A3=A3(ARG.pixel_offsetx, ARG.pixel_offsety)
-	_A2=A2(M, N)
+	_A2=A2(N, M)
 	_A1 = A1(PX, PY)
 	_E = E(A)
 	_X2 = X2(s) 
