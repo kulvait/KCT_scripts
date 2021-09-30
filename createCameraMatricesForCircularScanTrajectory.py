@@ -22,7 +22,7 @@ import os
 import sys
 from denpy import DEN;
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("outputMatrixFile")
 parser.add_argument("--source-to-isocenter", type=float, default=749.0)
 parser.add_argument("--source-to-detector", type=float, default=1198.0)

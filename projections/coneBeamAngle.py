@@ -91,6 +91,7 @@ def azimuthalAngle(CM, x, y, z):
 	at = np.arctan2(PY, PX)
 	return(at)
 
+#Coordinate on the detector relative to the principal zero
 def APX(CM, x, y, z):
 	source = sourcePosition(CM)
 	point = np.array([x,y,z])
@@ -102,6 +103,7 @@ def APX(CM, x, y, z):
 	return(PX)
 
 
+#Coordinate on the detector relative to the principal zero
 def APY(CM, x, y, z):
 	source = sourcePosition(CM)
 	point = np.array([x,y,z])
@@ -112,12 +114,34 @@ def APY(CM, x, y, z):
 	PY = point_loc.dot(vy)/PN
 	return(PY)
 
+#Coordinate on the detector endoded by camera matrix
+def PXOFFSET(CM, x, y, z):
+	source = sourcePosition(CM)
+	point = np.array([x,y,z])
+	point_loc = point - source
+	CM3x3 = np.delete(CM, 3, 1)
+	az=CM3x3[2,:].dot(point_loc)
+	ax=CM3x3[0,:].dot(point_loc)
+	return(ax/az)
+
+#Coordinate on the detector endoded by camera matrix
+def PYOFFSET(CM, x, y, z):
+	source = sourcePosition(CM)
+	point = np.array([x,y,z])
+	point_loc = point - source
+	CM3x3 = np.delete(CM, 3, 1)
+	az=CM3x3[2,:].dot(point_loc)
+	ay=CM3x3[1,:].dot(point_loc)
+	return(ay/az)
+
 header = DEN.readHeader(ARG.cameraMatrices)
-print("Angle\tConeBeamAngle\tazimuthalAngle\tPX\tPY")
+print("Angle\tConeBeamAngle\tazimuthalAngle\tPX0\tPY0\tPX\tPY")
 for i in range(header["zdim"]):
 	CM = DEN.getDoubleFrame(ARG.cameraMatrices, i)
 	CONEANGLE = coneAngle(CM, ARG.x, ARG.y, ARG.z)
 	AZIANGLE = azimuthalAngle(CM, ARG.x, ARG.y, ARG.z)
 	source = sourcePosition(CM)
 	n = normalToDetector(CM)
-	print("%d\t%f\t%f\t%f\t%f"%(i, CONEANGLE*180/np.pi, AZIANGLE*180/np.pi, APX(CM, ARG.x, ARG.y, ARG.z), APY(CM, ARG.x, ARG.y, ARG.z)))
+	PXO=PXOFFSET(CM, ARG.x, ARG.y, ARG.z)
+	PYO=PYOFFSET(CM, ARG.x, ARG.y, ARG.z)
+	print("%d\t%f\t%f\t%f\t%f\t%f\t%f"%(i, CONEANGLE*180/np.pi, AZIANGLE*180/np.pi, APX(CM, ARG.x, ARG.y, ARG.z), APY(CM, ARG.x, ARG.y, ARG.z), PXO, PYO))
