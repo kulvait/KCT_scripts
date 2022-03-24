@@ -39,7 +39,7 @@ parser.add_argument("--pixel-offsety", type=float, default=0., help="Principal p
 parser.add_argument("--number-of-angles", type=int, default=360, help="Number of views of the circular trajectory, .")
 parser.add_argument("--omega-zero", type=float, default=0, help="Initial angle omega in degrees.")
 parser.add_argument("--omega-angular-range", type=float, default=360, help="This is an angle in degrees, along which possitions are distributed.")
-parser.add_argument("--endpoint", action="store_true", default=False, help="If specified include omegaZero+omegaAngularRange as a endpoint of the discretization, if not specified the end point is not included by default as it often coincide with start point."
+parser.add_argument("--endpoint", action="store_true", default=False, help="If specified include omegaZero+omegaAngularRange as a endpoint of the discretization, if not specified the end point is not included by default as it often coincide with start point.")
 parser.add_argument("--force", action="store_true")
 parser.add_argument("--write-params-file", action="store_true")
 parser.add_argument('--_json-message', default="Created using KCT script createCameraMatricesForCircularScanTrajectory.py", help=argparse.SUPPRESS)
@@ -115,7 +115,7 @@ RANGE = ARG.omega_angular_range*np.pi/180.0
 OMEGAINCREMENT = RANGE/VIEWCOUNT
 
 #Let's create specified set of projection matrices as np.array
-CameraMatrices = np.zeros((0,4,3), dtype=np.float64)
+CameraMatrices = np.zeros((0,3,4), dtype=np.float64)
 directionAngles = np.linspace(OMEGA, OMEGA + RANGE, num=VIEWCOUNT, endpoint=ARG.endpoint)
 
 for i in range(len(directionAngles)):
@@ -128,7 +128,8 @@ for i in range(len(directionAngles)):
 	_X2 = X2(s) 
 	_X1 = X1(omega)
 	CM = _A3.dot(_A2).dot(_A1).dot(_E).dot(_X2).dot(_X1)
-	CameraMatrices = np.dstack((CameraMatrices, CM))
+	CM.shape=((1,3,4))
+	CameraMatrices = np.concatenate((CameraMatrices, CM))
 
 DEN.storeNdarrayAsDEN(ARG.outputMatrixFile, CameraMatrices, ARG.force)
 #Solution from https://stackoverflow.com/a/55114771

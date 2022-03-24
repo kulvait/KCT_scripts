@@ -25,15 +25,15 @@ parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFo
 parser.add_argument("outputMatrixFile")
 parser.add_argument("--projection-sizex", type=int, default=5120, help="PX dimension of detector in pixel count, defaults to 5120.")
 parser.add_argument("--projection-sizey", type=int, default=3840, help="PY dimension of detector in pixel count, defaults to 3840.")
-parser.add_argument("--pixel-sizex", type=float, default=0.064, help="X pixel size, defaults to 0.616.")
-parser.add_argument("--pixel-sizey", type=float, default=0.064, help="Y pixel size, defaults to 0.616.")
+parser.add_argument("--pixel-sizex", type=float, default=0.064, help="X pixel size, defaults to 0.0064.")
+parser.add_argument("--pixel-sizey", type=float, default=0.064, help="Y pixel size, defaults to 0.0064.")
 parser.add_argument("--detector-centerx", type=float, default=0., help="Coordinate x of the center of the detector, defaults to 0.0.")
 parser.add_argument("--detector-centery", type=float, default=0., help="Coordinate y of the center of the detector, defaults to 0.0.")
 parser.add_argument("--detector-centerz", type=float, default=0., help="Coordinate z of the center of the detector, defaults to 0.0.")
 parser.add_argument("--number-of-angles", type=int, default=5001, help="Number of views of the circular trajectory, .")
 parser.add_argument("--omega-zero", type=float, default=0, help="Initial angle omega in degrees.")
 parser.add_argument("--omega-angular-range", type=float, default=360, help="This is an angle in degrees, along which possitions are distributed.")
-parser.add_argument("--endpoint", action="store_true", default=False, help="If specified include omegaZero+omegaAngularRange as a endpoint of the discretization, if not specified the end point is not included by default as it often coincide with start point."
+parser.add_argument("--endpoint", action="store_true", default=False, help="If specified include omegaZero+omegaAngularRange as a endpoint of the discretization, if not specified the end point is not included by default as it often coincide with start point.")
 parser.add_argument("--force", action="store_true")
 parser.add_argument("--write-params-file", action="store_true")
 parser.add_argument('--_json-message', default="Created using KCT script createCameraMatricesForCircularScanTrajectoryParallelRay3D.py", help=argparse.SUPPRESS)
@@ -63,7 +63,7 @@ if ARG.write_params_file:
 #print("Denpy version is %s"%denpy.__version__)
 
 #Direction so that omega is ccw to the X axis, returns unit vector
-def rayDirection(omega, zeroToSource):
+def rayDirection(omega):
 	return(np.array([np.cos(omega), np.sin(omega), 0.], dtype=np.float64))
 
 M=float(ARG.projection_sizey)
@@ -90,7 +90,8 @@ for i in range(len(directionAngles)):
 	px0 = N * 0.5 - 0.5 - detectorCenter.dot(a)
 	py0 = M * 0.5 - 0.5 - detectorCenter.dot(b)
 	CM = np.array([np.append(a, px0), np.append(b,py0)])
-	CameraMatrices = np.dstack((CameraMatrices, CM))
+	CM.shape=(1,2,4)
+	CameraMatrices = np.concatenate((CameraMatrices, CM))
 
 DEN.storeNdarrayAsDEN(ARG.outputMatrixFile, CameraMatrices, ARG.force)
 #Solution from https://stackoverflow.com/a/55114771
