@@ -16,10 +16,12 @@ Units of lenghth are by convention millimeters
 
 import argparse
 import numpy as np
+import scipy.io
 import json
 import os
 import sys
-from denpy import DEN;
+from denpy import DEN
+
 #Defaults will be taken from https://confluence.desy.de/display/P5I/Detectors, KIT CMOS, no magnification
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("outputMatrixFile")
@@ -34,6 +36,7 @@ parser.add_argument("--number-of-angles", type=int, default=5001, help="Number o
 parser.add_argument("--omega-zero", type=float, default=0, help="Initial angle omega in degrees.")
 parser.add_argument("--omega-angular-range", type=float, default=360, help="This is an angle in degrees, along which possitions are distributed.")
 parser.add_argument("--endpoint", action="store_true", default=False, help="If specified include omegaZero+omegaAngularRange as a endpoint of the discretization, if not specified the end point is not included by default as it often coincide with start point.")
+parser.add_argument("--angles-mat", type=str, default=None, help="Sequence of angles stored in mat file.")
 parser.add_argument("--force", action="store_true")
 parser.add_argument("--write-params-file", action="store_true")
 parser.add_argument('--_json-message', default="Created using KCT script createCameraMatricesForCircularScanTrajectoryParallelRay3D.py", help=argparse.SUPPRESS)
@@ -70,17 +73,21 @@ M=float(ARG.projection_sizey)
 N=float(ARG.projection_sizex)
 PX=ARG.pixel_sizex
 PY=ARG.pixel_sizey
-VIEWCOUNT = ARG.number_of_angles
-OMEGA = ARG.omega_zero*np.pi/180.0
-RANGE = ARG.omega_angular_range*np.pi/180.0
-OMEGAINCREMENT = RANGE/VIEWCOUNT
 
-#Let's create specified set of projection matrices as np.array
+if ARG.angles_mat is not None:
+	matlab_dic = scipy.io.loadmat(ARG.angles_mat)
+	directionAngles = matlab_dic["angles"]
+else:
+	VIEWCOUNT = ARG.number_of_angles
+	OMEGA = ARG.omega_zero*np.pi/180.0
+	RANGE = ARG.omega_angular_range*np.pi/180.0
+	OMEGAINCREMENT = RANGE/VIEWCOUNT
+	#Let's create specified set of projection matrices as np.array
+	directionAngles = np.linspace(OMEGA, OMEGA + RANGE, num=VIEWCOUNT, endpoint=ARG.endpoint)
+
 CameraMatrices = np.zeros((0,2,4), dtype=np.float64)
-directionAngles = np.linspace(OMEGA, OMEGA + RANGE, num=VIEWCOUNT, endpoint=ARG.endpoint)
-
 for i in range(len(directionAngles)):
-	omega = directionAngles[i]
+	omega = float(directionAngles[i])
 	VR = rayDirection(omega)
 	VX = np.array([np.sin(omega)*PX, -np.cos(omega)*PX, 0.0], dtype=np.float64)
 	a = np.array([np.sin(omega)/PX, -np.cos(omega)/PX, 0.0], dtype=np.float64)
