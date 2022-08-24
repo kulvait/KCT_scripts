@@ -37,7 +37,7 @@ parser.add_argument("--pixel-sizey", type=float, default=0.616, help="Y pixel si
 parser.add_argument("--pixel-offsetx", type=float, default=0., help="Principal point of the detector will have PX=0.5*projectionSizeX-0.5+pixelOffsetX")
 parser.add_argument("--pixel-offsety", type=float, default=0., help="Principal point of the detector will have PY=0.5*projectionSizeY-0.5+pixelOffsetY.")
 parser.add_argument("--number-of-angles", type=int, default=360, help="Number of views of the circular trajectory, .")
-parser.add_argument("--omega-zero", type=float, default=0, help="Initial angle omega in degrees.")
+parser.add_argument("--omega-zero", type=float, default=-90, help="Initial angle omega in degrees, defaults to -90 that is theta from Radon transform zero.")
 parser.add_argument("--omega-angular-range", type=float, default=360, help="This is an angle in degrees, along which possitions are distributed.")
 parser.add_argument("--endpoint", action="store_true", default=False, help="If specified include omegaZero+omegaAngularRange as a endpoint of the discretization, if not specified the end point is not included by default as it often coincide with start point.")
 parser.add_argument("--force", action="store_true")
