@@ -1,0 +1,6 @@
+To test comparison of the projectors do the following
+
+git clone https://github.com/kulvait/KCT_scripts
+cd KCT_scripts/projectorComparison
+./01createUnitVoxels
+./02createProjections

@@ -1,2 +1,2 @@
 #!/bin/bash
-dentk-empty 1 1 1 singleUnitVoxel.den --value 1.0
+dentk-empty 1 1 1 singleUnitVoxel.den --value 1.0 --force

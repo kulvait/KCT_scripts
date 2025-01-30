@@ -64,7 +64,6 @@ function projectAndCompare #Expect PARAMS, OUTPUT as parameters $1 $2
     
 }
 
-
 projectAndCompare "--cvp" "projections/voxel.CVP"
 projectAndCompare "--cvp --relaxed --barrier" "projections/voxel.CVP_relaxed"
 projectAndCompare "--cvp --elevation-correction" "projections/voxel.CVE"
