@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Created on Tue Sep 14 16:27:13 2021
@@ -41,6 +41,7 @@ parser.add_argument("--omega-zero", type=float, default=-90, help="Initial angle
 parser.add_argument("--omega-angular-range", type=float, default=360, help="This is an angle in degrees, along which possitions are distributed.")
 parser.add_argument("--endpoint", action="store_true", default=False, help="If specified include omegaZero+omegaAngularRange as a endpoint of the discretization, if not specified the end point is not included by default as it often coincide with start point.")
 parser.add_argument("--force", action="store_true")
+parser.add_argument("--verbose", action="store_true")
 parser.add_argument("--write-params-file", action="store_true")
 parser.add_argument('--_json-message', default="Created using KCT script createCameraMatricesForCircularScanTrajectory.py", help=argparse.SUPPRESS)
 ARG = parser.parse_args()
@@ -121,6 +122,8 @@ directionAngles = np.linspace(OMEGA, OMEGA + RANGE, num=VIEWCOUNT, endpoint=ARG.
 for i in range(len(directionAngles)):
 	omega = directionAngles[i]
 	s = sourcePosition(omega, I) 
+	if ARG.verbose:
+		print("Preparing camera matrix for i=%d omega=%f and source=%s"%(i, omega, s))
 	_A3=A3(ARG.pixel_offsetx, ARG.pixel_offsety)
 	_A2=A2(N, M)
 	_A1 = A1(PX, PY)
@@ -128,10 +131,18 @@ for i in range(len(directionAngles)):
 	_X2 = X2(s) 
 	_X1 = X1(omega)
 	CM = _A3.dot(_A2).dot(_A1).dot(_E).dot(_X2).dot(_X1)
+	if ARG.verbose:
+		print("_A3 (A3 matrix):\n", _A3)
+		print("_A2 (A2 matrix):\n", _A2)
+		print("_A1 (A1 matrix):\n", _A1)
+		print("_E (E matrix):\n", _E)
+		print("_X2 (X2 matrix):\n", _X2)
+		print("_X1 (X1 matrix):\n", _X1)
+		print("Camera Matrix (CM):\n", CM)
 	CM.shape=((1,3,4))
 	CameraMatrices = np.concatenate((CameraMatrices, CM))
 
-DEN.storeNdarrayAsDEN(ARG.outputMatrixFile, CameraMatrices, ARG.force)
+DEN.storeNdarrayAsDEN(ARG.outputMatrixFile, CameraMatrices, ymajor=0, force=ARG.force)
 #Solution from https://stackoverflow.com/a/55114771
 if ARG.write_params_file:
 	with open(paramsFile, 'w') as f:

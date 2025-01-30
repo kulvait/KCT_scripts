@@ -1,0 +1,16 @@
+{
+  "_json_message": "Created using KCT script createCameraMatricesForCircularScanTrajectory.py",
+  "force": true,
+  "number_of_angles": 360,
+  "omega_zero": 0,
+  "outputMatrixFile": "geometry/CM1x1_616x480_CIRCULAR.den",
+  "pixel_offsetx": 0.0,
+  "pixel_offsety": 0.0,
+  "pixel_sizex": 0.154,
+  "pixel_sizey": 0.154,
+  "projection_sizex": 616,
+  "projection_sizey": 480,
+  "source_to_detector": 1198.0,
+  "source_to_isocenter": 749.0,
+  "write_params_file": true
+}

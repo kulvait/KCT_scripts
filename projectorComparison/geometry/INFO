@@ -1,0 +1,10 @@
+Matrices created for the following setups
+
+
+
+
+CM1x1_616x480_CIRCULAR.den
+The first two configurations are derived from a cone-beam computed tomography (CBCT) setup with a finely sampled detector grid. In this setup, the source-to-isocenter distance is \SI{749}{\milli \meter}, and the source-to-detector distance is \SI{1198}{\milli \meter}. The detector matrix consists of $616 \times 480$ pixels, each measuring $\SI{0.154}{\milli \meter} \times \SI{0.154}{\milli \meter}$.  
+
+CMLong_768x768.den
+To investigate projector errors at high elevation angles, we employ the setup described in \cite{Long2010}. This configuration consists of a circular CT trajectory with a flat-panel detector. The source-to-detector distance is \SI{949}{\milli \meter}, and the source-to-isocenter distance is \SI{541}{\milli \meter}, with 360 uniformly spaced projection views. The detector matrix consists of $768 \times 768$ detector cells, each with dimensions $\SI{1.0}{\milli \meter} \times \SI{1.0}{\milli \meter}$.  

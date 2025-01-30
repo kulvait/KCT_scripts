@@ -1,0 +1,88 @@
+#!/bin/bash
+
+# Parse command-line arguments
+FORCE_RECOMPUTE=false
+while getopts "f" opt; do
+    case "$opt" in
+        f) FORCE_RECOMPUTE=true ;;
+    esac
+done
+
+mkdir -p projections
+mkdir -p differences
+CM="../geometry/CM1x1_616x480_CIRCULAR.den"
+PPARAMS="--projection-sizex 616 --projection-sizey 480"
+VPARAMS="--voxel-sizex 1.0 --voxel-sizey 1.0 --voxel-sizez 1.0 --volume-centerx 20 --volume-centery 20 --volume-centerz 20"
+VOLUME=singleUnitVoxel.den
+BASELINEPARAMS="--probes-per-edge 512 --siddon"
+BASELINEOUTPUT="projections/voxel.siddon512"
+BASELINEOUTPUT_BN=$(basename $BASELINEOUTPUT)
+BASELINEOUTPUT_EXT="${BASELINEOUTPUT_BN##*.}"
+BASELINEOUTPUT_FN="${BASELINEOUTPUT_BN%.*}"
+
+# Function to compute projections if needed
+function computeProjection {
+    local PARAMS="$1"
+    local OUTPUT="$2"
+
+    if [ -f "$OUTPUT" ] && ! $FORCE_RECOMPUTE; then
+        echo "Skipping computation for $OUTPUT (already exists)"
+    else
+        echo "Computing projection: $OUTPUT"
+        kct-projector --force $PPARAMS $VPARAMS $PARAMS $VOLUME $CM $OUTPUT
+    fi
+}
+
+# Compute baseline projection
+computeProjection "$BASELINEPARAMS" "$BASELINEOUTPUT"
+
+# Extract baseline error values
+dentk-info --l2norm $BASELINEOUTPUT --frames 0-end | grep RMSE | grep frame | awk -F'[|, =]' 'BEGIN{print "Angle\tBaseline"};{print $4"\t"$7}' > ${BASELINEOUTPUT_EXT}
+
+compareFiles=(${BASELINEOUTPUT_EXT})
+
+function projectAndCompare #Expect PARAMS, OUTPUT as parameters $1 $2
+{
+    PARAMS="$1"
+    OUTPUT="$2"
+	computeProjection "$PARAMS" "$OUTPUT"
+
+    kct-projector --force $PPARAMS $VPARAMS $PARAMS $VOLUME $CM $OUTPUT
+    OUTPUT_BN=$(basename $OUTPUT)
+    OUTPUT_EXT="${OUTPUT_BN##*.}"
+    OUTPUT_FN="${OUTPUT_BN%.*}"
+    if [ "$OUTPUT_FN" = "$BASELINEOUTPUT_FN" ]; then
+                MINUSFILE="differences/${OUTPUT_FN}.${OUTPUT_EXT}_minus_${BASELINEOUTPUT_EXT}"
+                COMPAREFILE="${OUTPUT_EXT}.l2"
+                dentk-calc --force --subtract $OUTPUT $BASELINEOUTPUT "$MINUSFILE"
+                dentk-info --l2norm "$MINUSFILE" --frames 0-end | grep RMSE | grep frame | awk -v HEADER="${OUTPUT_EXT}" -F'[|, =]' 'BEGIN{print HEADER};{print $7 }' > $COMPAREFILE
+                compareFiles+=( "$COMPAREFILE" )
+    else
+        echo "File names ${OUTPUT_FN} and ${BASELINEOUTPUT_FN} does not match"
+        exit 1 
+    fi  
+    
+}
+
+
+projectAndCompare "--cvp" "projections/voxel.CVP"
+projectAndCompare "--cvp --relaxed --barrier" "projections/voxel.CVP_relaxed"
+projectAndCompare "--cvp --elevation-correction" "projections/voxel.CVE"
+projectAndCompare "--cvp --elevation-correction --relaxed --barrier" "projections/voxel.CVE_relaxed"
+projectAndCompare "--tt" "projections/voxel.TT"
+projectAndCompare "--probes-per-edge 1 --siddon" "projections/voxel.Siddon1"
+projectAndCompare "--probes-per-edge 2 --siddon" "projections/voxel.Siddon2"
+projectAndCompare "--probes-per-edge 4 --siddon" "projections/voxel.Siddon4"
+projectAndCompare "--probes-per-edge 8 --siddon" "projections/voxel.Siddon8"
+projectAndCompare "--probes-per-edge 16 --siddon" "projections/voxel.Siddon16"
+projectAndCompare "--probes-per-edge 32 --siddon" "projections/voxel.Siddon32"
+projectAndCompare "--probes-per-edge 64 --siddon" "projections/voxel.Siddon64"
+projectAndCompare "--probes-per-edge 128 --siddon" "projections/voxel.Siddon128"
+projectAndCompare "--probes-per-edge 256 --siddon" "projections/voxel.Siddon256"
+
+ALLFILES=""
+for f in ${compareFiles[@]}; do
+        ALLFILES="$ALLFILES $f"
+done
+paste $ALLFILES > projectorComparison.csv
+exit 0

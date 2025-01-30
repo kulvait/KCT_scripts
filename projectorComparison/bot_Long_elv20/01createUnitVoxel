@@ -1,0 +1,3 @@
+#!/bin/bash
+mkdir -p projections
+dentk-empty --force 1 1 1 singleUnitVoxel.den --value 1.0
