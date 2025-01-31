@@ -1,0 +1,39 @@
+#!/bin/bash
+
+#1. Annotate each image with labels (A, B, C) at the top-left corner
+for i in {1..3}; do
+    # Set the label and bottom-right text
+    case $i in
+        1)
+			folder='top_1x1x5_center'
+            label='A'
+            bottom_text=''
+            ;;
+        2)
+			folder='mid_1x1x1_20-20-20'
+            label='B'
+            bottom_text=''
+            ;;
+        3)
+			folder='bot_Long_elv20'
+            label='C'
+            bottom_text=''
+            ;;
+    esac
+
+    convert $folder/projectorComparison.png \
+      -gravity Northwest -pointsize 30 -fill black \
+      -annotate +10+10 "$label" \
+      -gravity SouthEast -pointsize 54 -fill black \
+      -annotate +10+10 "$bottom_text" \
+      image_${i}.png
+done
+
+
+#2. Create a 2x2 grid using ImageMagick with a white border
+montage image_1.png image_2.png image_3.png \
+  -tile 1x3 -geometry +2+2 -border 2 -bordercolor white projectorComparisonLog.png
+
+rm -f image_1.png image_2.png image_3.png
+
+echo "Projector comparison generated"
