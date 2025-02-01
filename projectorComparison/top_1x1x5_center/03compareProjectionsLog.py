@@ -18,7 +18,7 @@ def convertToGray(rgb):
 parser = argparse.ArgumentParser()
 parser.add_argument("procesCsv")
 parser.add_argument("--png", default=argparse.SUPPRESS)
-parser.add_argument("--title", default="Errors projecting single voxel, setup of Long et. al. with $\\approx 20^\\circ$ elevation, logaritmic scale")
+parser.add_argument("--title", default="Errors projecting single $1 \\times 1 \\times 5$ voxel without elevation, logaritmic scale")
 ARG = parser.parse_args()
 
 import matplotlib
@@ -61,8 +61,8 @@ for x in header:
 		else:
 			line, = plt.plot(csv["Angle"], 100*csv[x]/csv["Baseline"], label=x.replace("_", " "), linestyle="-") 
 
-line, = plt.plot(csv["Angle"], 100*csv["CVP"]/csv["Baseline"], label="CVP NO EC", linewidth="0.9", color="#7aa457", linestyle="-") 
-line, = plt.plot(csv["Angle"], 100*csv["CVE"]/csv["Baseline"], label="CVP", color="#0089f7") 
+line, = plt.plot(csv["Angle"], 100*csv["CVE"]/csv["Baseline"], label="CVP", color="#0089f7", linestyle="-") 
+line, = plt.plot(csv["Angle"], 100*csv["CVP"]/csv["Baseline"], label="CVP NO EC", linewidth="1.00", color="#98e6ff", linestyle=":") 
 line, = plt.plot(csv["Angle"], 100*csv["TT"]/csv["Baseline"], label="TT", color="#c55e46", linestyle="--") 
 
 
@@ -70,14 +70,14 @@ line, = plt.plot(csv["Angle"], 100*csv["TT"]/csv["Baseline"], label="TT", color=
 handles, labels = plt.gca().get_legend_handles_labels()
 
 #specify order of items in legend
-order = [1,0,2]
+order = [0,1,2]
 
 #add legend to plot
 plt.legend([handles[idx] for idx in order],[labels[idx] for idx in order], frameon=True, loc="upper left") 
 
 plt.yscale('log')
 # Format y-axis ticks as 1, 10, 100 instead of 10^0, 10^1, 10^2
-plt.yticks([10**i for i in range(-5, 3)], [str(10**i) for i in range(-5, 3)])
+plt.yticks([10**i for i in range(-5, 2)], [str(10**i) for i in range(-5, 2)])
 plt.xlabel("Angle in degrees")
 plt.ylabel("Relative error [\%]")
 #plt.xlim((0, 360))
@@ -86,7 +86,7 @@ plt.xticks(np.arange(0.0,361,45))
 plt.title(ARG.title)
 #plt.legend(frameon=True, loc="upper right")
 #plt.xlim((200, 300))
-plt.ylim((0.0001, 100))
+plt.ylim((0.0001, 90))
 if "png" in ARG:
 	plt.savefig(ARG.png)
 else:

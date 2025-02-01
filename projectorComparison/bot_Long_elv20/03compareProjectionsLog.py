@@ -18,7 +18,7 @@ def convertToGray(rgb):
 parser = argparse.ArgumentParser()
 parser.add_argument("procesCsv")
 parser.add_argument("--png", default=argparse.SUPPRESS)
-parser.add_argument("--title", default="Errors projecting single voxel with $\\approx 2^\\circ$ elevation, logaritmic scale")
+parser.add_argument("--title", default="Errors projecting single $1 \\times 1 \\times 1$ voxel, setup of Long et. al. with $\\sim 20^\\circ$ elevation, logaritmic scale")
 ARG = parser.parse_args()
 
 import matplotlib
