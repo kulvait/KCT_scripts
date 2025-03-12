@@ -2,8 +2,10 @@
 
 cd top_1x1x5_center
 ./02createProjections
+cd ..
 cd mid_1x1x1_20-20-20
 ./02createProjections
+cd ..
 cd bot_Long_elv20
 ./02createProjections
 
